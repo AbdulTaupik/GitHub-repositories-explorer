@@ -12,6 +12,10 @@ export const ListUser = (user: UserListProps) => {
     const [selectUser, setSelectUser] = useState("");
     const [repos, setRepos] = useState<IRepo[]>([]);
     const [loadingRepos, setLoadingRepos] = useState(false);
+    const [
+        showNotificationEmptyRepository,
+        setShowNotificationEmptyRepository,
+    ] = useState(false);
 
     const override: CSSProperties = {
         display: "block",
@@ -29,7 +33,11 @@ export const ListUser = (user: UserListProps) => {
             if (res.status === 403) throw new Error("API rate limit exceeded");
             if (!res.ok) throw new Error("Failed to fetch repos");
             const data = await res.json();
-            console.log("cek repo", data);
+            if (data.length === 0) {
+                setShowNotificationEmptyRepository(true);
+            } else {
+                setShowNotificationEmptyRepository(false);
+            }
             setRepos(data);
         } catch (e: any) {
             setRepos([]);
@@ -86,8 +94,7 @@ export const ListUser = (user: UserListProps) => {
                             <ListRepository repo={repos} />
                         )}
                         {selectUser == item.login &&
-                            selectUser != "" &&
-                            !loadingRepos && (
+                            showNotificationEmptyRepository && (
                                 <p className='text-xs text-red-500 pl-0 sm:pl-2'>
                                     repository is empty
                                 </p>
